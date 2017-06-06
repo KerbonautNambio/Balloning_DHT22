@@ -14,7 +14,7 @@ void setup() {
 }
 
 void loop() {
-  // Wait a few seconds between measurements.
+  // Wait a few seconds between measurements (sampling rate of DHT22 is 0.5Hz).
   delay(2000);
   
   double dewPoint(double celsius, double humidity)
