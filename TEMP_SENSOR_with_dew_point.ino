@@ -67,5 +67,6 @@ void loop() {
   Serial.print(" *F ");
   Serial.print("Dew Point (*C): ");
   Serial.println(dewPoint(t, h));
+  while(1); // executes only once before stopping. Could be changed or removed if needed
 }
 
