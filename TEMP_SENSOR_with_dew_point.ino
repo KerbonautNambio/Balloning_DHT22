@@ -1,6 +1,25 @@
-double dewPoint(double celsius, double humidity)
+#include "DHT.h"
+#include "Adafruit_Sensor.h"
+
+#define DHTPIN 2 // Could use any other pin when needed
+#define DHTTYPE DHT22 
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("DHT22 initialized!");
+
+  dht.begin();
+}
+
+void loop() {
+  // Wait a few seconds between measurements.
+  delay(2000);
+  
+  double dewPoint(double celsius, double humidity)
 {
-  // (1) Saturation Vapor Pressure = ESGG(T)
+  // (STEP 1) Saturation Vapor Pressure = ESGG(T)
   double RATIO = 373.15 / (273.15 + celsius);
   double RHS = -7.90298 * (RATIO - 1);
   RHS += 5.02808 * log10(RATIO);
@@ -11,38 +30,20 @@ double dewPoint(double celsius, double humidity)
   // factor -3 is to adjust units - Vapor Pressure SVP * humidity
   double VP = pow(10, RHS - 3) * humidity;
 
-  // (2) DEWPOINT = F(Vapor Pressure)
+  // (STEP 2) DEWPOINT = F(Vapor Pressure)
   double T = log(VP / 0.61078); // temp var
   return (241.88 * T) / (17.558 - T);
 }
 
-#include "DHT.h"
-#include "Adafruit_Sensor.h"
 
-#define DHTPIN 2 // what pin we're connected to
-#define DHTTYPE DHT22 
-
-DHT dht(DHTPIN, DHTTYPE);
-
-void setup() {
-  Serial.begin(9600);
-  Serial.println("DHT22 test!");
-
-  dht.begin();
-}
-
-void loop() {
-  // Wait a few seconds between measurements.
-  delay(2000);
-
-  // Reading temperature or humidity takes about 250 milliseconds!
+  // reading temperature or humidity takes 250 milliseconds (The DHT22 is a very slow sensor!)
   float h = dht.readHumidity();
   // Read temperature as Celsius
   float t = dht.readTemperature();
   // Read temperature as Fahrenheit
   float f = dht.readTemperature(true);
 
-  // Check if any reads failed and exit early (to try again).
+  // to check if any readings failed, exit and try again
   if (isnan(h) || isnan(t) || isnan(f)) {
     Serial.println("Failed to read from DHT sensor!");
     return;
@@ -54,12 +55,12 @@ void loop() {
   Serial.print("Humidity: ");
   Serial.print(h);
   Serial.print(" %\t");
-  Serial.print("Temperature: ");
+  Serial.print("Temperature 1: ");
   Serial.print(t);
   Serial.print(" *C ");
   Serial.print(f);
   Serial.print(" *F\t");
-  Serial.print("Other Temperature: ");
+  Serial.print("Temperature 2: "); // 2 readings each are taken for averaging later, creating more accurate results
   Serial.print(hiDegC);
   Serial.print(" *C ");
   Serial.print(hi);
